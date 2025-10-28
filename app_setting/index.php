@@ -82,57 +82,114 @@ $logo = $app_setting->logo ?? 'default-logo.png';
           <!--begin::Container-->
           <div class="container-fluid">
 
-            <!--begin::Row-->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <form id="appSettingsForm" enctype="multipart/form-data">
-                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
-                                <input type="hidden" name="setting_id" value="<?php echo htmlspecialchars($setting_id); ?>">
-                                <input type="hidden" name="action" value="update">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="appName" class="form-label">App Name</label>
-                                            <input type="text" class="form-control" id="appName" name="app_name" value="<?php echo htmlspecialchars($app_name); ?>" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="address" class="form-label">Address</label>
-                                            <textarea class="form-control" id="address" name="address" rows="3"><?php echo htmlspecialchars($address); ?></textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="contactNumber" class="form-label">Contact Number</label>
-                                            <input type="text" class="form-control" id="contactNumber" name="contact_number" value="<?php echo htmlspecialchars($contact_number); ?>">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="about" class="form-label">About</label>
-                                            <textarea class="form-control" id="about" name="about" rows="5"><?php echo htmlspecialchars($about); ?></textarea>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="logo" class="form-label">Logo</label>
-                                            <div class="input-group">
-                                                <input type="file" class="form-control" id="logo" name="logo">
-                                            </div>
-                                            <div class="mt-2">
-                                                <img src="<?php echo $base_url; ?>/dist/img/<?php echo htmlspecialchars($logo); ?>" alt="Current Logo" id="logo-preview" class="img-thumbnail" width="150">
-                                            </div>
-                                        </div>
-                                    </div>
+            <form id="appSettingsForm" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
+                <input type="hidden" name="setting_id" value="<?php echo htmlspecialchars($setting_id); ?>">
+                <input type="hidden" name="action" value="update">
+
+                <!--begin::Row-->
+                <div class="row">
+                    <!-- Application Information Card -->
+                    <div class="col-md-6">
+                        <div class="card card-primary card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="bi bi-gear-fill me-2"></i>Application Information</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="appName" class="form-label">
+                                        <i class="bi bi-app-indicator text-primary"></i> App Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="appName" name="app_name" value="<?php echo htmlspecialchars($app_name); ?>" required placeholder="Enter application name">
                                 </div>
-                                <button type="submit" id="saveSettingsBtn" class="btn btn-primary">Save Settings</button>
-                            </form>
+                                <div class="mb-3">
+                                    <label for="about" class="form-label">
+                                        <i class="bi bi-info-circle text-info"></i> About
+                                    </label>
+                                    <textarea class="form-control" id="about" name="about" rows="5" placeholder="Describe your application..."><?php echo htmlspecialchars($about); ?></textarea>
+                                    <small class="form-text text-muted">Provide a brief description of your application.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logo Card -->
+                    <div class="col-md-6">
+                        <div class="card card-success card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="bi bi-image-fill me-2"></i>Application Logo</h3>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <img src="<?php echo $base_url; ?>/dist/img/<?php echo htmlspecialchars($logo); ?>" 
+                                         alt="Current Logo" 
+                                         id="logo-preview" 
+                                         class="img-thumbnail shadow-sm" 
+                                         style="max-width: 200px; max-height: 200px; object-fit: contain;">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="logo" class="form-label">
+                                        <i class="bi bi-upload text-success"></i> Upload New Logo
+                                    </label>
+                                    <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                                    <small class="form-text text-muted">Accepted formats: JPG, PNG, GIF (Max: 2MB)</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!--end::Row-->
+                <!--end::Row-->
+
+                <!--begin::Row-->
+                <div class="row">
+                    <!-- Contact Information Card -->
+                    <div class="col-md-12">
+                        <div class="card card-info card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="bi bi-telephone-fill me-2"></i>Contact Information</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">
+                                                <i class="bi bi-envelope-fill text-danger"></i> Email Address
+                                            </label>
+                                            <input type="email" class="form-control" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" placeholder="contact@example.com">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="contactNumber" class="form-label">
+                                                <i class="bi bi-phone-fill text-success"></i> Contact Number
+                                            </label>
+                                            <input type="text" class="form-control" id="contactNumber" name="contact_number" value="<?php echo htmlspecialchars($contact_number); ?>" placeholder="+1 (234) 567-8900">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="address" class="form-label">
+                                                <i class="bi bi-geo-alt-fill text-warning"></i> Address
+                                            </label>
+                                            <textarea class="form-control" id="address" name="address" rows="3" placeholder="Enter complete address"><?php echo htmlspecialchars($address); ?></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" id="saveSettingsBtn" class="btn btn-primary">
+                                    <i class="bi bi-floppy-fill me-2"></i>Save Settings
+                                </button>
+                                <button type="reset" class="btn btn-secondary" onclick="location.reload();">
+                                    <i class="bi bi-x-circle me-2"></i>Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--end::Row-->
+
+            </form>
 
           </div>
           <!--end::Container-->
@@ -173,6 +230,21 @@ $logo = $app_setting->logo ?? 'default-logo.png';
             $('#logo').on('change', function() {
                 const [file] = this.files
                 if (file) {
+                    // Validate file size (2MB max)
+                    if (file.size > 2 * 1024 * 1024) {
+                        showToast('error', 'File size must be less than 2MB');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Validate file type
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                    if (!validTypes.includes(file.type)) {
+                        showToast('error', 'Please upload a valid image file (JPG, PNG, or GIF)');
+                        this.value = '';
+                        return;
+                    }
+                    
                     $('#logo-preview').attr('src', URL.createObjectURL(file));
                 }
             });
@@ -182,6 +254,7 @@ $logo = $app_setting->logo ?? 'default-logo.png';
                 e.preventDefault();
                 
                 const submitBtn = $('#saveSettingsBtn');
+                const originalHtml = submitBtn.html();
                 submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
                 
                 const formData = new FormData(this);
@@ -197,12 +270,15 @@ $logo = $app_setting->logo ?? 'default-logo.png';
                         if (response.success) {
                             showToast('success', response.message);
                             if (response.logo) {
-                                $('#logo-preview').attr('src', '<?php echo $base_url; ?>/dist/img/' + response.logo);
+                                $('#logo-preview').attr('src', '<?php echo $base_url; ?>/dist/img/' + response.logo + '?' + new Date().getTime());
                             }
-                            submitBtn.prop('disabled', false).html('Save Settings');
+                            // Reload page after 1 second to reflect changes
+                            setTimeout(function() {
+                                location.reload();
+                            }, 1000);
                         } else {
                             showToast('error', response.message);
-                            submitBtn.prop('disabled', false).html('Save Settings');
+                            submitBtn.prop('disabled', false).html(originalHtml);
                         }
                     },
                     error: function(xhr) {
@@ -210,9 +286,11 @@ $logo = $app_setting->logo ?? 'default-logo.png';
                         try {
                             const response = JSON.parse(xhr.responseText);
                             errorMsg = response.message || errorMsg;
-                        } catch(e) {}
+                        } catch(e) {
+                            console.error('Error parsing response:', xhr.responseText);
+                        }
                         showToast('error', errorMsg);
-                        submitBtn.prop('disabled', false).html('Save Settings');
+                        submitBtn.prop('disabled', false).html(originalHtml);
                     }
                 });
             });
@@ -235,14 +313,19 @@ $logo = $app_setting->logo ?? 'default-logo.png';
                 
                 var toastHeader = toastLiveExample.querySelector('.toast-header');
                 toastHeader.classList.remove('bg-success', 'bg-danger', 'text-white');
+                
+                var icon = '<i class="bi bi-check-circle-fill me-2"></i>';
                 if (type === 'success') {
                     toastHeader.classList.add('bg-success', 'text-white');
                 } else {
                     toastHeader.classList.add('bg-danger', 'text-white');
+                    icon = '<i class="bi bi-exclamation-triangle-fill me-2"></i>';
                 }
 
-                toastBody.textContent = message;
-                var toast = new bootstrap.Toast(toastLiveExample);
+                toastBody.innerHTML = icon + message;
+                var toast = new bootstrap.Toast(toastLiveExample, {
+                    delay: 3000
+                });
                 toast.show();
             }
         });
