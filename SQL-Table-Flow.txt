@@ -1,0 +1,138 @@
+System Overview and Logical Flow
+
+The SUNN SDP Tracker is designed to monitor and evaluate the university’s Strategic Development Plan by aligning objectives, targets, responsible offices, and actual accomplishments.
+
+Each table in the system plays a specific role in organizing and linking data, ensuring accurate tracking and reporting.
+
+1. tbl_objectives
+
+Purpose:
+Holds the list of institutional objectives. Each objective serves as the foundation for multiple SDP entries.
+
+Process Flow:
+Admin defines the institutional objectives in the system.
+↓
+Each objective can have multiple SDP entries linked to it.
+↓
+SDPs under the same objective share the same thematic focus or goal.
+
+2. tbl_sdp
+
+Purpose:
+Stores the Strategic Development Plan entries, each linked to one objective.
+
+Process Flow:
+Admin creates an SDP entry and links it to an existing objective.
+↓
+The SDP defines key performance indicators (KPIs) and initiatives to achieve that objective.
+↓
+Each SDP can have multiple targets and can be assigned to several offices through the responsibility matrix.
+
+3. tbl_responsibility_matrix
+
+Purpose:
+Contains the list of offices or units responsible for implementing SDPs.
+
+Process Flow:
+Admin encodes all official offices or units.
+↓
+Each office is uniquely identified through the r_matrix_id.
+↓
+These offices can be assigned to multiple SDPs through the tbl_sdp_responsibility table.
+
+4. tbl_sdp_responsibility
+
+Purpose:
+Acts as a junction (join) table defining the many-to-many relationship between SDPs and offices.
+
+Process Flow:
+Admin selects an SDP and assigns one or more offices responsible for implementing it.
+↓
+Each assigned record is stored in tbl_sdp_responsibility.
+↓
+The system uses this link to determine which SDPs a specific office (and its users) can view or encode accomplishments for.
+
+5. tbl_user
+
+Purpose:
+Stores user accounts and defines which office each user belongs to.
+
+Process Flow:
+Admin adds users and assigns them to their respective offices using r_matrix_id.
+↓
+When a user logs in, the system identifies their office and filters SDPs assigned to that office.
+↓
+User access is limited based on their role (Admin, Faculty, Staff, Dean, or Director).
+
+6. tbl_target
+
+Purpose:
+Holds the targets for each SDP, representing the planned values or milestones to be achieved.
+
+Process Flow:
+Admin or authorized user selects an SDP and defines specific targets (e.g., 80% for Q1, 90% for Q2).
+↓
+Each target record includes a value, type, quarter, and year.
+↓
+One SDP can have multiple targets for different periods or performance indicators.
+
+7. tbl_accomplishment
+
+Purpose:
+Stores the actual accomplishments or results submitted by users for each SDP target.
+
+Process Flow:
+Admin defines the SDP → linked to an objective.
+↓
+Targets are created under that SDP (e.g., Q1 target: 80%; Q2 target: 90%).
+↓
+Offices are assigned to that SDP (via tbl_sdp_responsibility).
+↓
+When a user from that office logs in and selects the SDP, the system displays all targets for that SDP.
+↓
+The user then adds an accomplishment and chooses which target it belongs to (via dropdown list of targets for that sdp_id).
+↓
+The system stores the record in tbl_accomplishment, referencing both the sdp_id and the target_id.
+↓
+Reports can now compare targets and accomplishments per SDP, office, and quarter.
+
+8. tbl_activity_logs
+
+Purpose:
+Tracks all user activities such as logins, logouts, and CRUD operations.
+
+Process Flow:
+Whenever a user performs an action (e.g., adding a record, updating data, or logging in/out),
+the system automatically records it in tbl_activity_logs.
+↓
+Each log entry includes the user_id, type of action, module affected, and timestamp.
+↓
+Admins can review logs for transparency and accountability.
+
+9. tbl_app_setting
+
+Purpose:
+Stores the general configuration and identity of the system.
+
+Process Flow:
+Admin sets or updates system information such as the application name, contact details, and logo.
+↓
+This information is displayed across system pages and reports for official branding.
+
+✅ Overall System Logic
+
+Objectives define what the university wants to achieve.
+
+SDPs outline specific plans under those objectives.
+
+Targets set measurable goals for each SDP.
+
+Offices (Responsibility Matrix) identify who is accountable.
+
+Users represent the personnel under those offices.
+
+Accomplishments track the actual performance of each target.
+
+Activity Logs ensure system transparency and traceability.
+
+App Settings maintain system-level information.

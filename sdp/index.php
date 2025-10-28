@@ -80,7 +80,7 @@ $resp_stmt = $db->prepare("SELECT rm.office_unit
             <div class="row">
               <div class="col-12">
                 <!-- Default box -->
-                <div class="card">
+                <div class="card card-primary card-outline">
                   <div class="card-header justify-content-between border-0">
                     <!-- this button will call the add modal -->
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSdpModal">Add SDP</button>

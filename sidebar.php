@@ -27,32 +27,51 @@
               role="menu"
               data-accordion="false">
 
+              <!-- Main Dashboard -->
               <li class="nav-item"><a href="../dashboard/" class="nav-link <?php echo (strpos($current_page, '/dashboard/') !== false) ? 'active' : ''; ?>">
                   <i class="nav-icon bi bi-speedometer2"></i>
                   <p>Dashboard</p>
                 </a>
-              </li> 
+              </li>
               
-              <li class="nav-item"><a href="../users/" class="nav-link <?php echo (strpos($current_page, '/users/') !== false) ? 'active' : ''; ?>">
-                  <i class="nav-icon bi bi-people"></i>
-                  <p>Users</p>
+              <!-- Strategic Framework -->
+              <li class="nav-header">STRATEGIC FRAMEWORK</li>
+              <li class="nav-item"><a href="../risenup/" class="nav-link <?php echo (strpos($current_page, '/risenup/') !== false) ? 'active' : ''; ?>">
+                  <i class="nav-icon bi bi-star"></i>
+                  <p>RISENUP</p>
                 </a>
-              </li> 
+              </li>
+              <li class="nav-item"><a href="../objectives/" class="nav-link <?php echo (strpos($current_page, '/objectives/') !== false) ? 'active' : ''; ?>">
+                  <i class="nav-icon bi bi-bullseye"></i>
+                  <p>Objectives</p>
+                </a>
+              </li>
+              <li class="nav-item"><a href="../sdp/" class="nav-link <?php echo (strpos($current_page, '/sdp/') !== false) ? 'active' : ''; ?>">
+                  <i class="nav-icon bi bi-list-check"></i>
+                  <p>Strategic Dev. Plans</p>
+                </a>
+              </li>
+              <li class="nav-item"><a href="../accomplishments/" class="nav-link <?php echo (strpos($current_page, '/accomplishments/') !== false) ? 'active' : ''; ?>">
+                  <i class="nav-icon bi bi-trophy"></i>
+                  <p>Accomplishments</p>
+                </a>
+              </li>
+              
+              <!-- Management -->
+              <li class="nav-header">MANAGEMENT</li>
               <li class="nav-item"><a href="../responsibility_matrix/" class="nav-link <?php echo (strpos($current_page, '/responsibility_matrix/') !== false) ? 'active' : ''; ?>">
                   <i class="nav-icon bi bi-diagram-3"></i>
                   <p>Responsibility Matrix</p>
                 </a>
-              </li> 
-              <li class="nav-item"><a href="../objectives/" class="nav-link <?php echo (strpos($current_page, '/objectives/') !== false) ? 'active' : ''; ?>">
-                  <i class="nav-icon bi bi-journal-check"></i>
-                  <p>Objectives</p>
+              </li>
+              <li class="nav-item"><a href="../users/" class="nav-link <?php echo (strpos($current_page, '/users/') !== false) ? 'active' : ''; ?>">
+                  <i class="nav-icon bi bi-people"></i>
+                  <p>Users</p>
                 </a>
-              </li> 
-              <li class="nav-item"><a href="../sdp/" class="nav-link <?php echo (strpos($current_page, '/sdp/') !== false) ? 'active' : ''; ?>">
-                  <i class="nav-icon bi bi-list-task"></i>
-                  <p>SDP</p>
-                </a>
-              </li> 
+              </li>
+              
+              <!-- System -->
+              <li class="nav-header">SYSTEM</li>
               <li class="nav-item"><a href="../app_setting/" class="nav-link <?php echo (strpos($current_page, '/app_setting/') !== false) ? 'active' : ''; ?>">
                   <i class="nav-icon bi bi-gear"></i>
                   <p>App Settings</p>

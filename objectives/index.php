@@ -42,7 +42,7 @@ $stmt = $objective->read();
           <div class="container-fluid">
             <div class="row">
               <div class="col-12">
-                <div class="card">
+                <div class="card card-primary card-outline">
                   <div class="card-header justify-content-between border-0">
                     <button type="button" id="openAddObjectiveBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">Add Objective</button>
                   </div>

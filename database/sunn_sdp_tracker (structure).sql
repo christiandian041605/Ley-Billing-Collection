@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Oct 20, 2025 at 01:05 PM
+-- Generation Time: Oct 28, 2025 at 07:31 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -30,9 +30,10 @@ SET time_zone = "+00:00";
 CREATE TABLE `tbl_accomplishment` (
   `accomplishment_id` int(11) NOT NULL,
   `sdp_id` int(11) NOT NULL,
+  `target_id` int(11) DEFAULT NULL,
   `accomplishment` varchar(255) DEFAULT NULL COMMENT 'Actual value achieved',
   `r_matrix_id` int(11) DEFAULT NULL,
-  `evidence` varchar(255) DEFAULT NULL,
+  `evidence` text DEFAULT NULL,
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -67,13 +68,6 @@ CREATE TABLE `tbl_app_setting` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `logo` varchar(255) NOT NULL DEFAULT 'default.png'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `tbl_app_setting`
---
-
-INSERT INTO `tbl_app_setting` (`setting_id`, `app_name`, `address`, `contact_number`, `email`, `about`, `updated_at`, `logo`) VALUES
-(1, 'SUNN SDP TRACKER', 'SUNN', '0934569876', 'sunn_eat@sunn.edu.ph', 'SUNN SDP TRACKER', '2025-10-14 06:04:44', 'logo_68edb6df0b78a4.59004219.png');
 
 -- --------------------------------------------------------
 
@@ -159,13 +153,6 @@ CREATE TABLE `tbl_user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `tbl_user`
---
-
-INSERT INTO `tbl_user` (`user_id`, `first_name`, `middle_name`, `last_name`, `position`, `username`, `password`, `role`, `created_at`, `r_matrix_id`) VALUES
-(3, 'Sys', NULL, 'John', 'System Admin', 'admin', '$2y$10$ofq8sNB07Buq9CMWszNBoukK0EEGeeT99HTxZkddR1fGE48JHGIOG', 'Admin', '2025-08-05 08:30:59', 1);
-
---
 -- Indexes for dumped tables
 --
 
@@ -175,7 +162,8 @@ INSERT INTO `tbl_user` (`user_id`, `first_name`, `middle_name`, `last_name`, `po
 ALTER TABLE `tbl_accomplishment`
   ADD PRIMARY KEY (`accomplishment_id`),
   ADD KEY `sdp_id` (`sdp_id`),
-  ADD KEY `r_matrix_id` (`r_matrix_id`);
+  ADD KEY `r_matrix_id` (`r_matrix_id`),
+  ADD KEY `fk_accomplishment_target` (`target_id`);
 
 --
 -- Indexes for table `tbl_activity_logs`
@@ -252,7 +240,7 @@ ALTER TABLE `tbl_activity_logs`
 -- AUTO_INCREMENT for table `tbl_app_setting`
 --
 ALTER TABLE `tbl_app_setting`
-  MODIFY `setting_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `setting_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tbl_objectives`
@@ -288,7 +276,7 @@ ALTER TABLE `tbl_target`
 -- AUTO_INCREMENT for table `tbl_user`
 --
 ALTER TABLE `tbl_user`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -298,6 +286,7 @@ ALTER TABLE `tbl_user`
 -- Constraints for table `tbl_accomplishment`
 --
 ALTER TABLE `tbl_accomplishment`
+  ADD CONSTRAINT `fk_accomplishment_target` FOREIGN KEY (`target_id`) REFERENCES `tbl_target` (`target_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `tbl_accomplishment_ibfk_1` FOREIGN KEY (`sdp_id`) REFERENCES `tbl_sdp` (`sdp_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `tbl_accomplishment_ibfk_2` FOREIGN KEY (`r_matrix_id`) REFERENCES `tbl_responsibility_matrix` (`r_matrix_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 

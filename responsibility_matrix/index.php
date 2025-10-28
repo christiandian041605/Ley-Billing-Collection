@@ -43,7 +43,7 @@ $stmt = $rm->read();
           <div class="container-fluid">
             <div class="row">
               <div class="col-12">
-                <div class="card">
+                <div class="card card-primary card-outline">
                   <div class="card-header justify-content-between border-0">
                     <button type="button" id="openAddRmBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">Add Office/Unit</button>
                   </div>

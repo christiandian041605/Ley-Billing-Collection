@@ -89,9 +89,8 @@ $logo = $app_setting->logo ?? 'default-logo.png';
 
                 <!--begin::Row-->
                 <div class="row">
-                    <!-- Application Information Card -->
-                    <div class="col-md-6">
-                        <div class="card card-primary card-outline">
+                    <div class="col-lg-8">
+                        <div class="card card-primary card-outline mb-4">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="bi bi-gear-fill me-2"></i>Application Information</h3>
                             </div>
@@ -111,39 +110,7 @@ $logo = $app_setting->logo ?? 'default-logo.png';
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Logo Card -->
-                    <div class="col-md-6">
-                        <div class="card card-success card-outline">
-                            <div class="card-header">
-                                <h3 class="card-title"><i class="bi bi-image-fill me-2"></i>Application Logo</h3>
-                            </div>
-                            <div class="card-body text-center">
-                                <div class="mb-3">
-                                    <img src="<?php echo $base_url; ?>/dist/img/<?php echo htmlspecialchars($logo); ?>" 
-                                         alt="Current Logo" 
-                                         id="logo-preview" 
-                                         class="img-thumbnail shadow-sm" 
-                                         style="max-width: 200px; max-height: 200px; object-fit: contain;">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="logo" class="form-label">
-                                        <i class="bi bi-upload text-success"></i> Upload New Logo
-                                    </label>
-                                    <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
-                                    <small class="form-text text-muted">Accepted formats: JPG, PNG, GIF (Max: 2MB)</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--end::Row-->
-
-                <!--begin::Row-->
-                <div class="row">
-                    <!-- Contact Information Card -->
-                    <div class="col-md-12">
                         <div class="card card-info card-outline">
                             <div class="card-header">
                                 <h3 class="card-title"><i class="bi bi-telephone-fill me-2"></i>Contact Information</h3>
@@ -176,7 +143,39 @@ $logo = $app_setting->logo ?? 'default-logo.png';
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card card-success card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="bi bi-image-fill me-2"></i>Application Logo</h3>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <img src="<?php echo $base_url; ?>/dist/img/<?php echo htmlspecialchars($logo); ?>" 
+                                         alt="Current Logo" 
+                                         id="logo-preview" 
+                                         class="img-thumbnail shadow-sm" 
+                                         style="max-width: 200px; max-height: 200px; object-fit: contain;">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="logo" class="form-label">
+                                        <i class="bi bi-upload text-success"></i> Upload New Logo
+                                    </label>
+                                    <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                                    <small class="form-text text-muted">Accepted formats: JPG, PNG, GIF (Max: 2MB)</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--end::Row-->
+
+                <!--begin::Row-->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
                                 <button type="submit" id="saveSettingsBtn" class="btn btn-primary">
                                     <i class="bi bi-floppy-fill me-2"></i>Save Settings
                                 </button>

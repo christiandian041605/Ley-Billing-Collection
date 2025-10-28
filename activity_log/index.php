@@ -62,7 +62,7 @@ $stmt = $activity_log->read();
             <div class="row">
               <div class="col-12">
                 <!-- Default box -->
-                <div class="card">
+                <div class="card card-primary card-outline">
                   <div class="card-body">
                     <table id="logsTable" class="table table-bordered table-striped">
                         <thead>
