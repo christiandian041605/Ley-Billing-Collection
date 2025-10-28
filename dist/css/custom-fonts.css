@@ -1,0 +1,52 @@
+/* custom-fonts.css
+   Set global font-family to Helvetica with safe fallbacks.
+   Helvetica is a system font on macOS. For non-macOS, fallbacks include 'Helvetica Neue', 'Arial', and generic sans-serif.
+*/
+
+:root {
+  --app-font-stack: "Helvetica", "Helvetica Neue", Arial, "Segoe UI", "Noto Sans", sans-serif;
+}
+
+html, body, input, button, select, textarea, .form-control, .form-select, .btn {
+  font-family: var(--app-font-stack) !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure headings inherit the same font (AdminLTE may override) */
+h1, h2, h3, h4, h5, h6, .card-title, .modal-title {
+  font-family: var(--app-font-stack) !important;
+}
+
+/* Ensure Font Awesome icons display properly */
+.fas, .far, .fab, .fal, .fad, .fa {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900;
+  font-style: normal;
+  display: inline-block;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+.far {
+  font-weight: 400;
+}
+
+/* Bootstrap icons */
+.bi {
+  font-family: "bootstrap-icons" !important;
+}
+
+/* Fix for icon spacing */
+.fas + span, .far + span, .fab + span {
+  margin-left: 0.25rem;
+}
+
+/* Ensure proper icon display in buttons */
+.btn .fas, .btn .far, .btn .fab {
+  margin-right: 0.25rem;
+}
+
+.btn .fas:only-child, .btn .far:only-child, .btn .fab:only-child {
+  margin-right: 0;
+}

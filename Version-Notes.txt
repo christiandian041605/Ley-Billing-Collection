@@ -1,0 +1,72 @@
+
+SUNN SDP Tracker — System Overview and Notes
+============================================
+
+Last updated: 2025-10-26
+
+Summary
+-------
+SUNN SDP Tracker is a small PHP web application using PDO + MySQL for persistence. It provides user authentication, a dashboard, user management, responsibility matrix, objectives, app settings, and activity logs. The project is structured as plain PHP files (no framework) and is intended to run under a standard LAMP/XAMPP environment.
+
+Key files and flow
+------------------
+- `index.php` — redirects to `dashboard/`.
+- `login/` — contains the login form (`index.php`) and `process_login.php` which authenticates users using `password_verify()` and sets session variables and a CSRF token on success.
+- `dashboard/index.php` — protected landing page that requires `$_SESSION['user_id']` (redirects to login otherwise).
+- `config/database.php` — PDO-based Database class. Defaults: host=localhost, dbname=sunn_sdp_tracker, user=root, password="" (XAMPP default).
+- `config/app.php` — reads application name and logo from `tbl_app_setting` on startup and exposes `$app_name`, `$logo`, and `$db`.
+- `config/session.php` — central session configuration (secure cookie params, samesite=Lax) and starts the session.
+- `users/` — user model (`user.php`) and controller (`process.php`) for create/update/delete operations. Passwords are hashed with `password_hash()` when creating/updating users. Duplicate checks are implemented for username.
+- `app_setting/` — CRUD for app settings via `app_setting.php` model.
+- `activity_log/` — `activity_log.php` model logs actions to `tbl_activity_logs` and includes a `read()` method with user join for display.
+- `helpers/activity_logger.php` — helper used across controllers to write activity logs (used in `users/process.php`).
+
+Database
+--------
+- Schema: there's an SQL dump at `database/sunn_sdp_tracker.sql` (inspect and import into MySQL/MariaDB).
+- Default DB connection settings live in `config/database.php`. Update these when deploying.
+
+Authentication & Security
+-------------------------
+- Passwords: stored using PHP's `password_hash()`; login uses `password_verify()`.
+- Sessions: `config/session.php` sets secure cookie flags (uses `isset($_SERVER['HTTPS'])` to set `secure`), `httponly`, and `samesite='Lax'`.
+- CSRF: A CSRF token is created on login (`$_SESSION['csrf_token'] = bin2hex(random_bytes(32))`) and `users/process.php` checks it on POST operations. Not all forms across the app may validate it — recommend auditing all state-changing forms to require the token.
+
+Notable implementation details / assumptions found
+-----------------------------------------------
+- The app uses server-side redirects (header Location) extensively; ensure output buffering or no prior output to avoid "headers already sent" issues.
+- `config/app.php` attempts to query the database on include; if DB connection fails the app still sets sensible defaults for `$app_name` and `$logo`.
+- `generate_hash.php` is provided as a simple page to create password hashes for seeding users.
+- `users/user.php` attempts to parse full name into first/middle/last parts using a simplistic split — could fail for names with more parts.
+
+Quick run / dev setup
+---------------------
+1. Install XAMPP / MAMP or other LAMP stack.
+2. Place the project inside the web root (already at: /Applications/XAMPP/xamppfiles/htdocs/SUNN-SDP-Tracker).
+3. Import the database dump: open phpMyAdmin or run:
+
+	mysql -u root -p sunn_sdp_tracker < database/sunn_sdp_tracker.sql
+
+4. Ensure `config/database.php` credentials match your local MySQL.
+5. Open the app in the browser at: http://localhost/SUNN-SDP-Tracker/ (or adjust `config/app.php` $base_url and virtual host as needed).
+
+Verification checklist
+----------------------
+- Login: visit `/login/`, provide username/password of a seeded user. Successful login redirects to `/dashboard/`.
+- Create user: use Users UI to create new users; verify hashed password in DB and activity log entry in `tbl_activity_logs`.
+- App settings: check app name/logo show on login page (read from `tbl_app_setting`).
+
+Quick security recommendations
+------------------------------
+1. Configure `config/database.php` to use a non-root DB user with a strong password for production.
+2. Enforce HTTPS in production and set `'secure' => true` in session cookie params.
+3. Audit all forms to ensure they validate the CSRF token on state-changing requests.
+4. Use prepared statements everywhere (existing code mostly uses them) and avoid echoing unsanitized input in UI.
+5. Consider using a router or front controller and move shared includes (header, footer, auth checks) into a bootstrap file.
+
+Build / Lint / Tests status (quick check)
+---------------------------------------
+- This project is plain PHP; there are no automated tests present.
+- A syntax check (`php -l`) was run on all `.php` files in the project. No syntax errors were found.
+
+End of notes.
