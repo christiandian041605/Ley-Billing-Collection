@@ -22,4 +22,3 @@ if ($db) {
     $logo = 'default.png';
 }
 
-?>

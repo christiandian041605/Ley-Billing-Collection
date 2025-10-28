@@ -28,4 +28,3 @@ $is_duplicate = $objective->isDuplicate($field, $value, $objectives_id);
 
 header('Content-Type: application/json');
 echo json_encode(['duplicate' => $is_duplicate]);
-?>

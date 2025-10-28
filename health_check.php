@@ -26,4 +26,3 @@ if ($result['db']['ok']) {
 }
 
 echo json_encode($result, JSON_PRETTY_PRINT);
-?>

@@ -1,4 +1,4 @@
-      <?php include_once __DIR__ . '/config/app.php'; ?>
+<?php include_once __DIR__ . '/config/app.php'; ?>
       <footer class="app-footer">
         
         <!--begin::Copyright-->

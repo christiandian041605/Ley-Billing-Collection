@@ -28,4 +28,3 @@ $is_duplicate = $sdp->isDuplicate($field, $value, $sdpId);
 
 header('Content-Type: application/json');
 echo json_encode(['duplicate' => $is_duplicate]);
-?>

@@ -28,4 +28,3 @@ $is_duplicate = $responsibility_matrix->isDuplicate($field, $value, $r_matrix_id
 
 header('Content-Type: application/json');
 echo json_encode(['duplicate' => $is_duplicate]);
-?>

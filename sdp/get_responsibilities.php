@@ -26,4 +26,3 @@ $r_matrix_ids = array_column($responsibilities, 'r_matrix_id');
 
 header('Content-Type: application/json');
 echo json_encode(['responsibilities' => $r_matrix_ids]);
-?>

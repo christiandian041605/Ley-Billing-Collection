@@ -110,4 +110,3 @@ class AppSetting {
         return false;
     }
 }
-?>

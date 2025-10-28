@@ -17,4 +17,3 @@ function log_activity($db, $user_id, $action, $module, $details) {
         $activity_log->create();
     }
 }
-?>

@@ -100,4 +100,3 @@ class ResponsibilityMatrix
         return false;
     }
 }
-?>

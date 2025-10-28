@@ -40,4 +40,3 @@ class ActivityLog {
         return $stmt;
     }
 }
-?>

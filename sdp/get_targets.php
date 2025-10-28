@@ -25,4 +25,3 @@ $targets = $sdp->getTargets();
 
 header('Content-Type: application/json');
 echo json_encode(['targets' => $targets]);
-?>

@@ -107,4 +107,3 @@ class Objective
         return false;
     }
 }
-?>

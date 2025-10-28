@@ -196,4 +196,3 @@ class User
         return false;
     }
 }
-?>

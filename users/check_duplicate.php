@@ -28,4 +28,3 @@ $is_duplicate = $user->isDuplicate($field, $value, $userId);
 
 header('Content-Type: application/json');
 echo json_encode(['duplicate' => $is_duplicate]);
-?>
