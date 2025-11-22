@@ -1,138 +1,76 @@
-System Overview and Logical Flow
+System Overview: Ley Billing and Collection System
 
-The SUNN SDP Tracker is designed to monitor and evaluate the university’s Strategic Development Plan by aligning objectives, targets, responsible offices, and actual accomplishments.
+This system is designed to manage the entire billing lifecycle for a business, from customer creation to invoicing and payment collection. It provides a structured way to track receivables and maintain a clear audit trail.
 
-Each table in the system plays a specific role in organizing and linking data, ensuring accurate tracking and reporting.
+---
 
-1. tbl_objectives
+**Logical Process Flow and Table Relationships:**
 
-Purpose:
-Holds the list of institutional objectives. Each objective serves as the foundation for multiple SDP entries.
+The system's data flow is centered around customers, invoices, and payments.
 
-Process Flow:
-Admin defines the institutional objectives in the system.
-↓
-Each objective can have multiple SDP entries linked to it.
-↓
-SDPs under the same objective share the same thematic focus or goal.
+**1. `tbl_customers`**
 
-2. tbl_sdp
+*   **Purpose:** This is the master table for all clients. Every transaction starts with a customer.
+*   **Process Flow:**
+    *   A new client is registered in the system and a record is created in `tbl_customers`.
+    *   This table holds essential details like name, business name, address, and contact information.
+    *   The `id` from this table is used as a foreign key in invoice and payment tables.
 
-Purpose:
-Stores the Strategic Development Plan entries, each linked to one objective.
+**2. `tbl_charge_invoices` & `tbl_charge_invoice_items`**
 
-Process Flow:
-Admin creates an SDP entry and links it to an existing objective.
-↓
-The SDP defines key performance indicators (KPIs) and initiatives to achieve that objective.
-↓
-Each SDP can have multiple targets and can be assigned to several offices through the responsibility matrix.
+*   **Purpose:** These tables represent a formal bill for services or products. `tbl_charge_invoices` is the header, and `tbl_charge_invoice_items` contains the individual line items.
+*   **Process Flow:**
+    *   A user creates a new charge invoice and links it to a customer via `customer_id`.
+    *   The invoice header (`tbl_charge_invoices`) contains the invoice number, date, and total amount.
+    *   Individual services or products are added as line items in `tbl_charge_invoice_items`, each linked back to the main invoice via `charge_invoice_id`.
+    *   The `payment_status` field on `tbl_charge_invoices` provides an at-a-glance view of whether the invoice is 'Unpaid', 'Partially Paid', or 'Paid'.
 
-3. tbl_responsibility_matrix
+**3. `tbl_official_receipts` (Payments)**
 
-Purpose:
-Contains the list of offices or units responsible for implementing SDPs.
+*   **Purpose:** This table records all incoming payments from customers. An official receipt is the proof of payment.
+*   **Process Flow:**
+    *   When a payment is received, a user creates an official receipt, linking it to the customer who paid (`customer_id`).
+    *   It stores the amount received, date, and payment method (e.g., 'Cash', 'Check').
+    *   If the payment is by check, it can be linked to a bank in `tbl_banks`.
 
-Process Flow:
-Admin encodes all official offices or units.
-↓
-Each office is uniquely identified through the r_matrix_id.
-↓
-These offices can be assigned to multiple SDPs through the tbl_sdp_responsibility table.
+**4. `tbl_or_invoice` (The Junction Table)**
 
-4. tbl_sdp_responsibility
+*   **Purpose:** This is a critical junction table that applies payments to invoices. It resolves the many-to-many relationship between `tbl_official_receipts` and `tbl_charge_invoices`.
+*   **Process Flow:**
+    *   After creating an official receipt, the user applies the received amount to one or more outstanding charge invoices.
+    *   For each application, a record is created in `tbl_or_invoice`, storing the `or_id`, the `charge_invoice_id`, and the `applied_amount`.
+    *   This design allows:
+        *   A single payment to cover multiple invoices.
+        *   A single invoice to be paid off by multiple payments (installments).
 
-Purpose:
-Acts as a junction (join) table defining the many-to-many relationship between SDPs and offices.
+**5. `tbl_deliveries` & `tbl_invoice_deliveries` (Optional Flow)**
 
-Process Flow:
-Admin selects an SDP and assigns one or more offices responsible for implementing it.
-↓
-Each assigned record is stored in tbl_sdp_responsibility.
-↓
-The system uses this link to determine which SDPs a specific office (and its users) can view or encode accomplishments for.
+*   **Purpose:** Tracks the physical delivery of goods or documents related to an invoice.
+*   **Process Flow:**
+    *   A delivery record is created in `tbl_deliveries`.
+    *   It is then linked to one or more charge invoices via the `tbl_invoice_deliveries` junction table.
 
-5. tbl_user
+**6. `tbl_users` & `tbl_activity_logs`**
 
-Purpose:
-Stores user accounts and defines which office each user belongs to.
+*   **Purpose:** Manages system access and accountability.
+*   **Process Flow:**
+    *   `tbl_users` stores login credentials and roles.
+    *   Whenever a user performs a key action (e.g., creates an invoice, records a payment), a record is automatically created in `tbl_activity_logs`, capturing who did what, and when.
 
-Process Flow:
-Admin adds users and assigns them to their respective offices using r_matrix_id.
-↓
-When a user logs in, the system identifies their office and filters SDPs assigned to that office.
-↓
-User access is limited based on their role (Admin, Faculty, Staff, Dean, or Director).
+**7. `tbl_app_setting`**
 
-6. tbl_target
+*   **Purpose:** Stores general configuration and branding for the application.
+*   **Process Flow:**
+    *   An admin user can update the application's name, logo, and contact details.
+    *   This information is used globally across the application's UI.
 
-Purpose:
-Holds the targets for each SDP, representing the planned values or milestones to be achieved.
+---
 
-Process Flow:
-Admin or authorized user selects an SDP and defines specific targets (e.g., 80% for Q1, 90% for Q2).
-↓
-Each target record includes a value, type, quarter, and year.
-↓
-One SDP can have multiple targets for different periods or performance indicators.
+✅ **Overall System Logic**
 
-7. tbl_accomplishment
-
-Purpose:
-Stores the actual accomplishments or results submitted by users for each SDP target.
-
-Process Flow:
-Admin defines the SDP → linked to an objective.
-↓
-Targets are created under that SDP (e.g., Q1 target: 80%; Q2 target: 90%).
-↓
-Offices are assigned to that SDP (via tbl_sdp_responsibility).
-↓
-When a user from that office logs in and selects the SDP, the system displays all targets for that SDP.
-↓
-The user then adds an accomplishment and chooses which target it belongs to (via dropdown list of targets for that sdp_id).
-↓
-The system stores the record in tbl_accomplishment, referencing both the sdp_id and the target_id.
-↓
-Reports can now compare targets and accomplishments per SDP, office, and quarter.
-
-8. tbl_activity_logs
-
-Purpose:
-Tracks all user activities such as logins, logouts, and CRUD operations.
-
-Process Flow:
-Whenever a user performs an action (e.g., adding a record, updating data, or logging in/out),
-the system automatically records it in tbl_activity_logs.
-↓
-Each log entry includes the user_id, type of action, module affected, and timestamp.
-↓
-Admins can review logs for transparency and accountability.
-
-9. tbl_app_setting
-
-Purpose:
-Stores the general configuration and identity of the system.
-
-Process Flow:
-Admin sets or updates system information such as the application name, contact details, and logo.
-↓
-This information is displayed across system pages and reports for official branding.
-
-✅ Overall System Logic
-
-Objectives define what the university wants to achieve.
-
-SDPs outline specific plans under those objectives.
-
-Targets set measurable goals for each SDP.
-
-Offices (Responsibility Matrix) identify who is accountable.
-
-Users represent the personnel under those offices.
-
-Accomplishments track the actual performance of each target.
-
-Activity Logs ensure system transparency and traceability.
-
-App Settings maintain system-level information.
+1.  **Onboard a Customer** (`tbl_customers`).
+2.  **Create a Bill** (`tbl_charge_invoices` with items in `tbl_charge_invoice_items`).
+3.  **Record a Payment** (`tbl_official_receipts`).
+4.  **Apply the Payment** to the bill(s) (`tbl_or_invoice`).
+5.  The system automatically updates the invoice's `payment_status`.
+6.  All actions are logged for **auditing** (`tbl_activity_logs`).

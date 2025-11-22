@@ -1,0 +1,44 @@
+System: Ley Billing and Collection System
+Function: A web-based application to manage customers, charge invoices, payments, and collections.
+
+**System Flow:**
+
+The system is designed to streamline the billing and collection process. The core workflow is as follows:
+
+1.  **User and System Management:**
+    *   Users are managed in `tbl_users`, with different roles (e.g., Admin, Staff) that control access.
+    *   All significant user actions are recorded in `tbl_activity_logs` for auditing purposes.
+    *   System-wide information, such as the application name and logo, is configured in `tbl_app_setting`.
+
+2.  **Customer Onboarding:**
+    *   New clients are added to the system as customers and stored in the `tbl_customers` table.
+    *   Customers can be categorized as 'Private', 'Business', or 'Government'.
+
+3.  **Billing (Charge Invoices):**
+    *   When services are rendered, a charge invoice is generated for a customer. This is the primary record for accounts receivable, stored in `tbl_charge_invoices`.
+    *   Each invoice contains one or more line items, which are detailed in `tbl_charge_invoice_items`.
+
+4.  **Deliveries (Optional):**
+    *   The system can track deliveries associated with services or products.
+    *   Delivery records are stored in `tbl_deliveries` and linked to charge invoices through the `tbl_invoice_deliveries` junction table.
+
+5.  **Payment and Collection:**
+    *   When a customer makes a payment, an Official Receipt is created in `tbl_official_receipts`.
+    *   The system supports various payment types like 'Cash', 'Check', etc. Bank details for check payments are managed in `tbl_banks`.
+    *   A single payment (Official Receipt) can be applied to one or more charge invoices. This relationship is managed in the `tbl_or_invoice` junction table.
+    *   The `payment_status` of an invoice in `tbl_charge_invoices` is updated accordingly (e.g., 'Unpaid', 'Partially Paid', 'Paid').
+    *   A detailed history of payments is maintained in `tbl_payment_history`.
+
+**Core Database Tables:**
+
+*   `tbl_users`: Stores user accounts and roles.
+*   `tbl_customers`: Stores client information.
+*   `tbl_charge_invoices`: Main table for billing records.
+*   `tbl_charge_invoice_items`: Line items for each charge invoice.
+*   `tbl_official_receipts`: Records of payments received.
+*   `tbl_or_invoice`: Junction table linking receipts to invoices.
+*   `tbl_deliveries`: Records of deliveries made.
+*   `tbl_invoice_deliveries`: Junction table linking invoices to deliveries.
+*   `tbl_banks`: Stores bank names and branches for check payments.
+*   `tbl_activity_logs`: Tracks user actions within the system.
+*   `tbl_app_setting`: Stores application-level settings and branding.
