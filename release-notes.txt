@@ -1,0 +1,92 @@
+RELEASE NOTES - LEY BILLING AND COLLECTION SYSTEM
+Version: Dec 2025 Revision
+Date: December 13, 2025
+
+================================================================================
+SUMMARY
+================================================================================
+This release implements a major architectural revision to support distinct workflows 
+for Private/Business customers versus Government customers. The system now 
+streamlines private sales by bypassing the invoice generation step, while 
+optimizing the government workflow to link invoices directly to delivery receipts.
+
+================================================================================
+NEW FEATURES & CHANGES
+================================================================================
+
+1. DUAL WORKFLOW IMPLEMENTATION
+   - **Private/Business Flow:** Customer -> Delivery (DR V) -> Payment -> Receipt.
+     * Payments are now directly linked to Delivery Receipts (DR V).
+     * No Charge Invoice required for private transactions.
+   - **Government Flow:** Customer -> Delivery (DR Govt) -> Charge Invoice -> Payment -> Receipt.
+     * Charge Invoices are now exclusively for Government transactions.
+     * Charge Invoices must be linked to existing DR Government records.
+
+2. DELIVERY MANAGEMENT
+   - Added `Payment Status` (Unpaid, Partially Paid, Paid) to Deliveries.
+   - Auto-population of address based on selected Customer.
+   - Improved UI for Delivery creation and list view.
+
+3. CHARGE INVOICES
+   - **REMOVED:** Invoice Line Items functionality.
+   - **ADDED:** "Link Deliveries" feature. Invoice amount is now automatically 
+     calculated based on selected DR Government records.
+   - Restricted customer selection to Government type only.
+
+4. PAYMENTS & RECEIPTS
+   - **NEW:** Capability to allocate payments to either Invoices (Govt) or
+     Deliveries (Private) dynamically based on customer type.
+   - **NEW:** `tbl_or_delivery` database table to track private payment allocations.
+   - **FIXED:** Edit Payment modal now correctly loads unpaid records (including
+     currently allocated ones) and displays the correct current balance.
+   - **FIXED:** Print Receipt now includes a "Balance" column.
+   - **UI:** Customer selection is now the first field to drive dynamic data loading.
+   - **UI Enhancement (Private Payments):** For Private/Business customers, the "OR Number" input field in Add/Edit payment modals is now hidden and automatically pre-filled with a system-generated unique ID. The "OR Date" label has been updated to "Date Received" for these payments, and the "OR Number" column is hidden from the main Payments table.
+
+5. DASHBOARD & REPORTS
+   - **UPDATED:** Dashboard metrics (Total Revenue, Invoices, Recent Transactions)
+     now aggregate data from both Charge Invoices and DR V Deliveries.
+   - **UPDATED:** Statement of Accounts (SOA) and CSV Export now correctly include
+     both Invoice-based and Delivery-based transactions.
+   - **SOA Report Refinement:** The "OR No." column in the Payment History section of the Statement of Accounts report is now conditionally hidden for non-Government customers.
+6. DATABASE UPDATES
+   - Added `payment_status` column to `tbl_deliveries`.
+   - Created `tbl_or_delivery` table.
+   - Dropped obsolete tables: `tbl_charge_invoice_items`, `tbl_private_payments`, 
+     `tbl_private_invoice_selection`.
+
+================================================================================
+BUG FIXES
+================================================================================
+- Fixed `Call to undefined method Payment::isGovernmentCustomer()` error.
+- Fixed `Call to a member function prepare() on null` in Payment constructor.
+- Fixed issue where "Edit Payment" modal would not show full balances for reallocation.
+- Fixed issue where Payment Status was not updating for DR Government items in Delivery list.
+- Fixed missing Date field in Edit Payment modal.
+- **FIXED:** Resolved persistent `Parse error` and `Database error: Invalid parameter number` in Deliveries module.
+
+================================================================================
+OTHER NOTES
+================================================================================
+- Successfully generated a large dataset for stress testing, including over 12,000 transactions and over 10,000 payment records.
+
+================================================================================
+KNOWN ISSUES / NOTES
+================================================================================
+- Ensure all "Private" customers use "DR V" type deliveries to be billable.
+- "Charge Invoice" module is now strictly for Government use.
+
+
+7. DELIVERIES & LOGISTICS ENHANCEMENTS
+   - **ADDED:** New "Logistics" fields (Checker, Driver, Plate Number) to Deliveries module.
+   - **DB UPDATE:** Added `checker`, `driver`, and `plate_number` columns to `tbl_deliveries`.
+   - **UI UPDATE:** Merged the three logistics fields into a single "Logistics" column in the main table.
+   - **LOGIC:** Implemented conditional visibility for Logistics fields:
+     * **Government Deliveries:** Logistics fields are hidden in Add/Edit forms and the main table.
+     * **Standard Deliveries:** Logistics fields are visible.
+   - **UI UPDATE:** "Invoices" column in the main table is now hidden for Standard Deliveries (`type=dr_v`) and only visible for Government/All views.
+
+8. UI/UX & MODAL CONSISTENCY
+   - **MODAL BACKDROP CLEANUP:** Implemented a universal JavaScript listener for `hidden.bs.modal` to ensure modal backdrops are consistently removed and body states (overflow/padding) are correctly reset across all modules.
+   - **TRANSPARENT BACKDROPS:** Added global CSS styling to ensure modal backdrops remain transparent, eliminating visual artifacts like "black shadows" during modal transitions.
+   - **MODULE COVERAGE:** Standardized modal behavior across Deliveries, Charge Invoices, Payments, Customers, Banks, and Users modules.

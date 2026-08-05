@@ -1,0 +1,18 @@
+/* Custom Brand Colors - Used for Branding Elements Only */
+:root {
+  --brand-primary: #fbbd0d;
+  --brand-secondary: #0c2c6b;
+  --brand-tertiary: #04492e;
+}
+
+/* 
+ * Button colors now use standard Bootstrap colors
+ * All custom button color overrides have been removed
+ * Buttons will use default Bootstrap 5 color scheme:
+ * - Primary: Blue (#0d6efd)
+ * - Secondary: Gray (#6c757d)
+ * - Success: Green (#198754)
+ * - Danger: Red (#dc3545)
+ * - Warning: Yellow (#ffc107)
+ * - Info: Cyan (#0dcaf0)
+ */

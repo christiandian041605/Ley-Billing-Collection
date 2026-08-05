@@ -1,6 +1,6 @@
 <?php
 include_once __DIR__ . '/../config/session.php';
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['ley_billing_user_id'])) {
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Unauthorized']);
     exit();

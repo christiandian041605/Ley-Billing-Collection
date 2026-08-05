@@ -2,7 +2,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title><?php echo $app_name; ?></title>
-    <link rel="icon" href="<?php echo $base_url; ?>/dist/img/<?php echo $logo; ?>" type="image/x-icon">
+
     <script>
         window.csrf_token = '<?php echo $_SESSION['csrf_token'] ?? ''; ?>';
     </script>
@@ -49,9 +49,113 @@
     <!--begin::Required Plugin(AdminLTE)-->
     <link rel="stylesheet" href="../dist/css/adminlte.css" />
     <!--end::Required Plugin(AdminLTE)-->
+    <!--begin::Custom Styles-->
+    <link rel="stylesheet" href="../dist/css/custom.css" />
+    <link rel="stylesheet" href="../dist/css/custom_brand.css" />
+    <!--end::Custom Styles-->
   <!-- Custom font stack (Optima first) -->
   <link rel="stylesheet" href="../dist/css/custom-fonts.css" />
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    
+    <style>
+    /* Sidebar Toggle Functionality */
+    .app-sidebar {
+        transition: transform 0.3s ease-in-out;
+        width: 250px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .sidebar-wrapper {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    
+    .sidebar-collapse .app-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .app-main {
+        margin-left: 250px;
+        transition: margin-left 0.3s ease-in-out;
+    }
+    
+    .sidebar-collapse .app-main {
+        margin-left: 0;
+    }
+    
+    .app-header {
+        margin-left: 250px;
+        transition: margin-left 0.3s ease-in-out;
+    }
+    
+    .sidebar-collapse .app-header {
+        margin-left: 0;
+    }
+    
+    .app-footer {
+        margin-left: 250px;
+        transition: margin-left 0.3s ease-in-out;
+    }
+    
+    .sidebar-collapse .app-footer {
+        margin-left: 0;
+    }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .app-sidebar {
+            transform: translateX(-100%);
+        }
+        
+        .app-main,
+        .app-header {
+            margin-left: 0;
+        }
+        
+        .sidebar-open .app-sidebar {
+            transform: translateX(0);
+        }
+    }
+    
+    /* Treeview Menu Styles */
+    .nav-treeview {
+        display: none;
+        list-style: none;
+        padding-left: 0;
+    }
+    
+    .has-treeview.menu-open > .nav-treeview {
+        display: block !important;
+    }
+    
+    .nav-treeview .nav-item .nav-link {
+        padding-left: 2rem;
+    }
+    
+    .has-treeview > .nav-link .nav-arrow {
+        transition: transform 0.3s ease;
+        float: right;
+        margin-top: 3px;
+    }
+    
+    .has-treeview.menu-open > .nav-link .nav-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .nav-treeview .nav-link {
+        font-size: 0.9rem;
+    }
+    </style>
   </head>

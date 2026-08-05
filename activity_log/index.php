@@ -1,9 +1,16 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['ley_billing_user_id'])) {
     header("Location: ../login/");
     exit();
 }
+
+// Restrict to Admin only
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
+    header("Location: ../dashboard/");
+    exit();
+}
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -24,7 +31,7 @@ $stmt = $activity_log->read();
   <!--end::Head-->
 
   <!--begin::Body-->
-  <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+  <body class="layout-fixed bg-body-tertiary">
     <!--begin::App Wrapper-->
     <div class="app-wrapper">
 

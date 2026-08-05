@@ -1,0 +1,169 @@
+================================================================================
+  LEY GOVERNMENT BILLING AND COLLECTION SYSTEM
+  SIMPLIFIED SYSTEM BLUEPRINT (Revised Dec 2025)
+  Module | Function | Data Flow | Database Schema
+================================================================================
+
+SYSTEM OVERVIEW:
+===============
+Web-based billing and collection system tailored for government and private sales.
+KEY REVISION: Separate workflows for Private and Government sales.
+- Private: Sales tracked via Deliveries (DR V). No Invoice step.
+- Government: Sales tracked via Charge Invoices linked to Deliveries (DR Government).
+
+Main Flow 1 (Private): Customer → Delivery (DR V) → Payment → Receipt → Report
+Main Flow 2 (Government): Customer → Delivery (DR Govt) → Charge Invoice → Payment → Receipt → Report
+
+================================================================================
+MODULE ARCHITECTURE
+================================================================================
+
+1. USER MANAGEMENT
+==================
+MODULE PATH: /users/
+FUNCTION: User authentication, role-based access control, CRUD.
+ROLES: Admin, Encoder, Viewer.
+DATABASE TABLES:
+- tbl_users
+- tbl_user_logs
+- tbl_activity_logs
+
+---
+
+2. CUSTOMER MANAGEMENT
+======================
+MODULE PATH: /customers/
+FUNCTION: Create and manage profiles.
+REVISION: UI simplified to show Customer Name only in selection dropdowns.
+DATABASE TABLE:
+- tbl_customers (id, name, business_name, customer_type, address, contact, email, created_at)
+
+---
+
+3. DELIVERY MANAGEMENT
+======================
+MODULE PATH: /deliveries/
+FUNCTION: Track deliveries.
+DELIVERY TYPES:
+- DR V (Private/Business): Primary sales document. Payments link directly here.
+- DR Government: Supporting document for Charge Invoices.
+REVISION: Added `payment_status` to track payment state for Private sales.
+DATABASE TABLES:
+- tbl_deliveries
+  * ...
+  * payment_status (ENUM: Unpaid, Partially Paid, Paid) [NEW]
+- tbl_invoice_deliveries (Junction: Invoice <-> DR Govt)
+
+---
+
+4. CHARGE INVOICES
+==================
+MODULE PATH: /charge_invoices/
+FUNCTION: Create invoices for Government customers ONLY.
+REVISION:
+- Link to "DR Government" deliveries only.
+- Line items REMOVED. Total amount derived from linked deliveries.
+- Calculates 5% and 1% withholding tax.
+DATABASE TABLE:
+- tbl_charge_invoices
+  * ... (No change to columns)
+- tbl_charge_invoice_items [ELIMINATED]
+
+---
+
+5. PAYMENTS & OFFICIAL RECEIPTS
+================================
+MODULE PATH: /payments/
+FUNCTION: Process payments, generate ORs, allocate to sales.
+REVISION: Dual allocation logic.
+- Private Payments: Allocate to `tbl_deliveries` (DR V).
+- Government Payments: Allocate to `tbl_charge_invoices`.
+
+DATABASE TABLES:
+- tbl_official_receipts
+- tbl_or_invoice (Government Allocation)
+- tbl_or_delivery (Private Allocation) [NEW]
+- tbl_payment_history
+- tbl_banks
+
+---
+
+6. BANK MANAGEMENT
+==================
+MODULE PATH: /banks/
+FUNCTION: Manage bank references for check payments.
+DATABASE TABLE: tbl_banks
+
+---
+
+7. REPORTS & STATEMENT OF ACCOUNTS
+===================================
+MODULE PATH: /reports/
+FUNCTION: Generate SOA.
+REVISION:
+- Consolidates data from both `tbl_charge_invoices` (Govt) and `tbl_deliveries` (Private).
+- Displays correct status based on payment allocation.
+
+---
+
+8. APPLICATION SETTINGS
+=======================
+MODULE PATH: /app_setting/
+FUNCTION: System configuration.
+DATABASE TABLE: tbl_app_setting
+
+---
+
+9. ACTIVITY LOGS
+================
+MODULE PATH: /activity_log/
+FUNCTION: System audit trail.
+DATABASE TABLE: tbl_activity_logs
+
+---
+
+10. DASHBOARD
+=============
+MODULE PATH: /dashboard/
+FUNCTION: System statistics.
+REVISION: Metrics updated to include DR V (Private) sales in totals and recent transactions.
+
+================================================================================
+COMPLETE DATABASE SCHEMA
+================================================================================
+
+TABLE 1: tbl_users (Unchanged)
+TABLE 2: tbl_customers (Unchanged)
+
+TABLE 3: tbl_deliveries
+────────────────────────
+- id (PK)
+- delivery_no (Unique)
+- ...
+- total_amount
+- payment_status (ENUM: Unpaid, Partially Paid, Paid) [NEW]
+
+TABLE 4: tbl_charge_invoices (Unchanged structure, logic changed)
+TABLE 5: tbl_charge_invoice_items [DROPPED]
+
+TABLE 6: tbl_official_receipts (Unchanged)
+
+TABLE 7: tbl_or_invoice (For Government)
+────────────────────────
+- id (PK)
+- or_id (FK)
+- charge_invoice_id (FK)
+- applied_amount
+
+TABLE 14: tbl_or_delivery (For Private) [NEW]
+──────────────────────────
+- id (PK)
+- or_id (FK)
+- delivery_id (FK)
+- applied_amount
+
+(Tables 8-13 largely unchanged)
+
+================================================================================
+END OF REVISED BLUEPRINT
+================================================================================

@@ -34,7 +34,7 @@ class ActivityLog {
     }
 
     function read() {
-        $query = "SELECT a.*, CONCAT(u.first_name, ' ', u.last_name) as full_name FROM " . $this->table_name . " a LEFT JOIN tbl_user u ON a.user_id = u.user_id ORDER BY a.created_at DESC";
+        $query = "SELECT a.*, CONCAT(u.first_name, ' ', u.last_name) as full_name FROM " . $this->table_name . " a LEFT JOIN tbl_users u ON a.user_id = u.id ORDER BY a.created_at DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt;

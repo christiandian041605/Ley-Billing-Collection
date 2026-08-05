@@ -1,6 +1,6 @@
 <?php
 include_once __DIR__ . '/../config/session.php';
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['ley_billing_user_id'])) {
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit();
@@ -36,6 +36,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     switch ($action) {
         case 'update':
+            // Ensure default record exists
+            $app_setting->ensureDefaultExists();
+            
             // Get settings state before update
             $app_setting_before = new AppSetting($db);
             $app_setting_before->setting_id = $_POST['setting_id'];
@@ -47,35 +50,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $app_setting->contact_number = $_POST['contact_number'];
             $app_setting->email = $_POST['email'];
             $app_setting->about = $_POST['about'];
-
-            $new_logo_filename = null;
-
-            // Handle file upload
-            if (isset($_FILES['logo']) && $_FILES['logo']['error'] == 0) {
-                $target_dir = "../dist/img/";
-                $original_filename = $_FILES["logo"]["name"];
-                $file_extension = pathinfo($original_filename, PATHINFO_EXTENSION);
-                $new_filename = uniqid('logo_', true) . '.' . $file_extension;
-                $target_file = $target_dir . $new_filename;
-
-                // Check if file is an image
-                $check = getimagesize($_FILES["logo"]["tmp_name"]);
-                if ($check !== false) {
-                    if (move_uploaded_file($_FILES["logo"]["tmp_name"], $target_file)) {
-                        $app_setting->logo = $new_filename;
-                        $new_logo_filename = $new_filename;
-                    } else {
-                        header('Content-Type: application/json');
-                        echo json_encode(['success' => false, 'message' => 'Sorry, there was an error uploading your file']);
-                        exit();
-                    }
-                } else {
-                    header('Content-Type: application/json');
-                    echo json_encode(['success' => false, 'message' => 'File is not an image']);
-                    exit();
-                }
-            }
-
+            
             if ($app_setting->update()) {
                 $details = [];
                 if ($app_setting_before->app_name !== $app_setting->app_name) {
@@ -93,9 +68,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($app_setting_before->about !== $app_setting->about) {
                     $details[] = "about section updated";
                 }
-                if ($new_logo_filename) {
-                    $details[] = "logo updated to '{$new_logo_filename}'";
-                }
 
                 if (!empty($details)) {
                     $log_message = "Updated app settings: " . implode(', ', $details) . ".";
@@ -103,10 +75,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $log_message = "Attempted to update app settings, but no values were changed.";
                 }
 
-                log_activity($db, (int)$_SESSION['user_id'], 'Updated App Setting', 'App Settings', $log_message);
+                log_activity($db, (int)$_SESSION['ley_billing_user_id'], 'Updated App Setting', 'App Settings', $log_message);
                 
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'message' => 'App Setting was updated successfully', 'logo' => $app_setting->logo ?? $app_setting_before->logo]);
+                echo json_encode(['success' => true, 'message' => 'App Setting was updated successfully']);
             } else {
                 header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'message' => 'Unable to update app setting']);

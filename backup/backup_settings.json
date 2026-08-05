@@ -1,0 +1,9 @@
+{
+    "enabled": true,
+    "schedule": {
+        "day": 0,
+        "time": "07:58"
+    },
+    "retention": 8,
+    "last_backup": "2026-02-17 07:58:13"
+}

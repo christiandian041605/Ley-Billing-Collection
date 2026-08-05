@@ -9,14 +9,13 @@ class AppSetting {
     public $contact_number;
     public $email;
     public $about;
-    public $logo;
 
     public function __construct($db) {
         $this->conn = $db;
     }
 
         function create() {
-        $query = "INSERT INTO " . $this->table_name . " SET app_name=:app_name, address=:address, contact_number=:contact_number, email=:email, about=:about, logo=:logo";
+        $query = "INSERT INTO " . $this->table_name . " SET app_name=:app_name, address=:address, contact_number=:contact_number, email=:email, about=:about";
         $stmt = $this->conn->prepare($query);
 
         $this->app_name = htmlspecialchars(strip_tags($this->app_name));
@@ -24,14 +23,12 @@ class AppSetting {
         $this->contact_number = htmlspecialchars(strip_tags($this->contact_number));
         $this->email = htmlspecialchars(strip_tags($this->email));
         $this->about = htmlspecialchars(strip_tags($this->about));
-        $this->logo = htmlspecialchars(strip_tags($this->logo));
 
         $stmt->bindParam(":app_name", $this->app_name);
         $stmt->bindParam(":address", $this->address);
         $stmt->bindParam(":contact_number", $this->contact_number);
         $stmt->bindParam(":email", $this->email);
         $stmt->bindParam(":about", $this->about);
-        $stmt->bindParam(":logo", $this->logo);
 
         if ($stmt->execute()) {
             $this->setting_id = $this->conn->lastInsertId();
@@ -54,22 +51,20 @@ class AppSetting {
         $stmt->execute();
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $this->app_name = $row['app_name'];
-        $this->address = $row['address'];
-        $this->contact_number = $row['contact_number'];
-        $this->email = $row['email'];
-        $this->about = $row['about'];
-        $this->logo = $row['logo'];
+        if ($row) {
+            $this->setting_id = $row['setting_id'];
+            $this->app_name = $row['app_name'];
+            $this->address = $row['address'];
+            $this->contact_number = $row['contact_number'];
+            $this->email = $row['email'];
+            $this->about = $row['about'];
+            return true;
+        }
+        return false;
     }
 
     function update() {
-        $query = "UPDATE " . $this->table_name . " SET app_name=:app_name, address=:address, contact_number=:contact_number, email=:email, about=:about";
-        
-        if ($this->logo) {
-            $query .= ", logo=:logo";
-        }
-        
-        $query .= " WHERE setting_id=:setting_id";
+        $query = "UPDATE " . $this->table_name . " SET app_name=:app_name, address=:address, contact_number=:contact_number, email=:email, about=:about WHERE setting_id=:setting_id";
 
         $stmt = $this->conn->prepare($query);
 
@@ -87,15 +82,17 @@ class AppSetting {
         $stmt->bindParam(':about', $this->about);
         $stmt->bindParam(':setting_id', $this->setting_id);
 
-        if ($this->logo) {
-            $this->logo = htmlspecialchars(strip_tags($this->logo));
-            $stmt->bindParam(':logo', $this->logo);
+        try {
+            if ($stmt->execute()) {
+                return true;
+            }
+            // Log error info for debugging
+            error_log("AppSetting update failed: " . implode(", ", $stmt->errorInfo()));
+            return false;
+        } catch (Exception $e) {
+            error_log("AppSetting update exception: " . $e->getMessage());
+            return false;
         }
-
-        if ($stmt->execute()) {
-            return true;
-        }
-        return false;
     }
 
     function delete() {
@@ -108,5 +105,21 @@ class AppSetting {
             return true;
         }
         return false;
+    }
+
+    function ensureDefaultExists() {
+        // Check if a record with setting_id = 1 exists
+        $query = "SELECT COUNT(*) as count FROM " . $this->table_name . " WHERE setting_id = 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row['count'] == 0) {
+            // Create default record (include logo field since it still exists in database)
+            $query = "INSERT INTO " . $this->table_name . " (setting_id, app_name, address, contact_number, email, about, logo) VALUES (1, 'Default App Name', '', '', '', '', 'default.png')";
+            $stmt = $this->conn->prepare($query);
+            return $stmt->execute();
+        }
+        return true;
     }
 }

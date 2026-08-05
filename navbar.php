@@ -9,12 +9,18 @@ if (session_status() == PHP_SESSION_NONE) {
           <!--begin::Start Navbar Links-->
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+              <a class="nav-link" href="#" role="button" onclick="toggleSidebar()">
                 <i class="bi bi-list"></i>
               </a>
             </li>
           </ul>
           <!--end::Start Navbar Links-->
+          
+          <!--begin::Brand Name-->
+          <div class="navbar-brand mx-3">
+            <span class="fw-bold text-primary"><?php include_once __DIR__ . '/config/app.php'; echo $app_name; ?></span>
+          </div>
+          <!--end::Brand Name-->
           
         
           <!--begin::End Navbar Links-->

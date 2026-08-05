@@ -9,3 +9,4 @@
         All rights reserved.
         <!--end::Copyright-->
       </footer>
+<?php include_once 'script.php'; ?>

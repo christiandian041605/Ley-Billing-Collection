@@ -1,9 +1,16 @@
 <?php
 include_once __DIR__ . '/../config/session.php';
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['ley_billing_user_id'])) {
     header("Location: ../login/");
     exit();
 }
+
+// Restrict to Admin only
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
+    header("Location: ../dashboard/");
+    exit();
+}
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -17,6 +24,9 @@ $db = $database->getConnection();
 
 $app_setting = new AppSetting($db);
 
+// Ensure default record exists
+$app_setting->ensureDefaultExists();
+
 // Fetch the single app setting entry
 $app_setting->setting_id = 1; // Assuming there is only one setting record with ID 1
 $app_setting->readOne();
@@ -28,7 +38,6 @@ $address = $app_setting->address ?? '';
 $contact_number = $app_setting->contact_number ?? '';
 $email = $app_setting->email ?? '';
 $about = $app_setting->about ?? '';
-$logo = $app_setting->logo ?? 'default-logo.png';
 ?>
 <!doctype html>
 <html lang="en">
@@ -38,7 +47,7 @@ $logo = $app_setting->logo ?? 'default-logo.png';
   <!--end::Head-->
 
   <!--begin::Body-->
-  <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+  <body class="layout-fixed bg-body-tertiary">
     <!--begin::App Wrapper-->
     <div class="app-wrapper">
 
@@ -145,29 +154,6 @@ $logo = $app_setting->logo ?? 'default-logo.png';
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="card card-success card-outline">
-                            <div class="card-header">
-                                <h3 class="card-title"><i class="bi bi-image-fill me-2"></i>Application Logo</h3>
-                            </div>
-                            <div class="card-body text-center">
-                                <div class="mb-3">
-                                    <img src="<?php echo $base_url; ?>/dist/img/<?php echo htmlspecialchars($logo); ?>" 
-                                         alt="Current Logo" 
-                                         id="logo-preview" 
-                                         class="img-thumbnail shadow-sm" 
-                                         style="max-width: 200px; max-height: 200px; object-fit: contain;">
-                                </div>
-                                <div class="mb-3">
-                                    <label for="logo" class="form-label">
-                                        <i class="bi bi-upload text-success"></i> Upload New Logo
-                                    </label>
-                                    <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
-                                    <small class="form-text text-muted">Accepted formats: JPG, PNG, GIF (Max: 2MB)</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <!--end::Row-->
 
@@ -225,28 +211,6 @@ $logo = $app_setting->logo ?? 'default-logo.png';
     <?php include "../script.php"; ?>
     <script>
         $(document).ready(function() {
-            // Preview logo before upload
-            $('#logo').on('change', function() {
-                const [file] = this.files
-                if (file) {
-                    // Validate file size (2MB max)
-                    if (file.size > 2 * 1024 * 1024) {
-                        showToast('error', 'File size must be less than 2MB');
-                        this.value = '';
-                        return;
-                    }
-                    
-                    // Validate file type
-                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-                    if (!validTypes.includes(file.type)) {
-                        showToast('error', 'Please upload a valid image file (JPG, PNG, or GIF)');
-                        this.value = '';
-                        return;
-                    }
-                    
-                    $('#logo-preview').attr('src', URL.createObjectURL(file));
-                }
-            });
 
             // AJAX Form Submission for App Settings
             $('#appSettingsForm').on('submit', function(e) {
@@ -268,9 +232,6 @@ $logo = $app_setting->logo ?? 'default-logo.png';
                     success: function(response) {
                         if (response.success) {
                             showToast('success', response.message);
-                            if (response.logo) {
-                                $('#logo-preview').attr('src', '<?php echo $base_url; ?>/dist/img/' + response.logo + '?' + new Date().getTime());
-                            }
                             // Reload page after 1 second to reflect changes
                             setTimeout(function() {
                                 location.reload();

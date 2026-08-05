@@ -16,15 +16,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $query = "SELECT * FROM tbl_user WHERE username = :username";
+    $query = "SELECT * FROM tbl_users WHERE username = :username";
     $stmt = $db->prepare($query);
     $stmt->bindParam(':username', $username);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['full_name'] = trim($user['first_name'] . ' ' . $user['last_name']);
+    if ($user && password_verify($password, $user['password_hash'])) {
+        $_SESSION['ley_billing_user_id'] = $user['id']; // Updated to use id field from tbl_users
+        $_SESSION['full_name'] = trim($user['first_name'] . ' ' . ($user['middle_name'] ? $user['middle_name'] . ' ' : '') . $user['last_name']);
         $_SESSION['role'] = $user['role'];
         // Generate CSRF token
         if (empty($_SESSION['csrf_token'])) {

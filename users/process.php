@@ -1,6 +1,6 @@
 <?php
 include_once __DIR__ . '/../config/session.php';
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['ley_billing_user_id'])) {
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit();
@@ -38,44 +38,71 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     switch ($action) {
         case 'create':
-            $user->full_name = $_POST['full_name'];
+            // Get individual name fields directly from form
+            $user->first_name = $_POST['first_name'] ?? '';
+            $user->middle_name = $_POST['middle_name'] ?? '';
+            $user->last_name = $_POST['last_name'] ?? '';
+            $user->position = $_POST['position'] ?? '';
             $user->username = $_POST['username'];
-            $user->position = $_POST['position'];
-            $user->r_matrix_id = empty($_POST['r_matrix_id']) ? null : $_POST['r_matrix_id'];
             $user->password = $_POST['password'];
             $user->role = $_POST['role'];
+            
+            // Create full name for display and logging
+            $full_name = trim(implode(' ', array_filter([$user->first_name, $user->middle_name, $user->last_name])));
+            
+            // Set backwards compatibility properties
+            $user->fullname = $full_name;
+            $user->accounttype = $_POST['role'];
+
+            // Check for duplicate username before creating
+            if ($user->isDuplicate('username', $user->username)) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Username already exists. Please choose a different username.']);
+                exit();
+            }
 
             if ($user->create()) {
-                $log_message = "Created new user '{$user->full_name}' (ID: {$user->user_id})";
-                log_activity($db, (int)$_SESSION['user_id'], 'Created User', 'Users', $log_message);
+                $log_message = "Created new user '{$full_name}' (ID: {$user->id})";
+                log_activity($db, (int)$_SESSION['ley_billing_user_id'], 'Created User', 'Users', $log_message);
                 
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'message' => 'User was created successfully', 'user_id' => $user->user_id]);
+                echo json_encode(['success' => true, 'message' => 'User was created successfully', 'user_id' => $user->id]);
             } else {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Unable to create user. Username may already be in use.']);
+                echo json_encode(['success' => false, 'message' => 'Unable to create user. Please check all required fields and try again.']);
             }
             exit();
 
         case 'update':
-            $user->user_id = $_POST['user_id'];
+            $user->id = $_POST['user_id'];
+            $user->user_id = $_POST['user_id']; // For backwards compatibility
 
             // Get user state before update
             $user_before = new User($db);
-            $user_before->user_id = $user->user_id;
+            $user_before->id = $user->id;
+            $user_before->user_id = $user->id;
             $user_before->readOne();
 
-            $user->full_name = $_POST['full_name'];
+            // Get individual name fields directly from form
+            $user->first_name = $_POST['first_name'] ?? '';
+            $user->middle_name = $_POST['middle_name'] ?? '';
+            $user->last_name = $_POST['last_name'] ?? '';
+            $user->position = $_POST['position'] ?? '';
             $user->username = $_POST['username'];
-            $user->position = $_POST['position'];
-            $user->r_matrix_id = empty($_POST['r_matrix_id']) ? null : $_POST['r_matrix_id'];
             $user->role = $_POST['role'];
+            
+            // Create full name for display and logging
+            $full_name = trim(implode(' ', array_filter([$user->first_name, $user->middle_name, $user->last_name])));
+            
+            // Set backwards compatibility properties
+            $user->fullname = $full_name;
+            $user->accounttype = $_POST['role'];
             $user->password = $_POST['password'] ?? ''; // Password might be empty if not changed
 
             if ($user->update()) {
                 $details = [];
-                if ($user_before->full_name !== $user->full_name) {
-                    $details[] = "full name from '{$user_before->full_name}' to '{$user->full_name}'";
+                if ($user_before->fullname !== $user->fullname) {
+                    $details[] = "full name from '{$user_before->fullname}' to '{$user->fullname}'";
                 }
                 if ($user_before->username !== $user->username) {
                     $details[] = "username from '{$user_before->username}' to '{$user->username}'";
@@ -83,16 +110,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($user_before->position !== $user->position) {
                     $details[] = "position from '{$user_before->position}' to '{$user->position}'";
                 }
-                if ($user_before->r_matrix_id != $user->r_matrix_id) {
-                    $new_office_name = $user->getOfficeUnitById($user->r_matrix_id);
-                    $details[] = "office from '{$user_before->office}' to '{$new_office_name}'";
-                }
-
-                // Role comparison
-                $role_map = [1 => 'Admin', 2 => 'Staff', 'Admin' => 'Admin', 'Faculty' => 'Faculty', 'Staff' => 'Staff', 'Dean' => 'Dean', 'Director' => 'Director'];
-                $new_role_name = $role_map[$_POST['role']] ?? 'Staff';
-                if ($user_before->role !== $new_role_name) {
-                    $details[] = "role from '{$user_before->role}' to '{$new_role_name}'";
+                if ($user_before->role !== $user->role) {
+                    $details[] = "role from '{$user_before->role}' to '{$user->role}'";
                 }
 
                 if (!empty($user->password)) {
@@ -100,12 +119,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
 
                 if (!empty($details)) {
-                    $log_message = "Updated user '{$user_before->full_name}': " . implode(', ', $details) . ".";
+                    $log_message = "Updated user '{$user_before->fullname}': " . implode(', ', $details) . ".";
                 } else {
-                    $log_message = "Attempted to update user '{$user_before->full_name}', but no values were changed.";
+                    $log_message = "Attempted to update user '{$user_before->fullname}', but no values were changed.";
                 }
                 
-                log_activity($db, (int)$_SESSION['user_id'], 'Updated User', 'Users', $log_message);
+                log_activity($db, (int)$_SESSION['ley_billing_user_id'], 'Updated User', 'Users', $log_message);
                 
                 header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'message' => 'User was updated successfully']);
@@ -116,15 +135,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
 
         case 'delete':
-            $user->user_id = $_POST['user_id'];
+            $user->id = $_POST['user_id'];
+            $user->user_id = $_POST['user_id']; // For backwards compatibility
 
             // Get user details before deleting
             $user->readOne();
-            $deleted_user_name = $user->full_name;
+            $deleted_user_name = $user->fullname;
 
             if ($user->delete()) {
-                $log_message = "Deleted user '{$deleted_user_name}' (ID: {$user->user_id})";
-                log_activity($db, (int)$_SESSION['user_id'], 'Deleted User', 'Users', $log_message);
+                $log_message = "Deleted user '{$deleted_user_name}' (ID: {$user->id})";
+                log_activity($db, (int)$_SESSION['ley_billing_user_id'], 'Deleted User', 'Users', $log_message);
                 
                 header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'message' => 'User was deleted successfully']);

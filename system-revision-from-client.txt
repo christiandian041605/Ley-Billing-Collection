@@ -1,0 +1,198 @@
+================================================================================
+LEY GOVERNMENT BILLING AND COLLECTION SYSTEM - REVISED BLUEPRINT (Dec 2025)
+================================================================================
+
+SYSTEM OVERVIEW:
+===============
+Web-based billing and collection system tailored for government and private sales.
+KEY CHANGE: Private sales are recorded via DR V and skip the Charge Invoice step.
+KEY CHANGE: Charge Invoices are now exclusively for Government sales.
+
+Revised Main Flow:
+1. Private: Customer → DR V (Delivery) → Payment → Receipt → Report
+2. Government: Customer → DR Government (Delivery) → Charge Invoice → Payment → Receipt → Report
+
+================================================================================
+REVISED MODULE ARCHITECTURE
+================================================================================
+
+1. USER MANAGEMENT (No Changes)
+===============================
+MODULE PATH: /users/
+DATABASE TABLES:
+- tbl_users (id, username, password_hash, role, ...)
+- tbl_user_logs
+- tbl_activity_logs
+
+---
+
+2. CUSTOMER MANAGEMENT (ID# UI Removed)
+=======================================
+MODULE PATH: /customers/
+KEY OPERATION REVISION:
+- UI Simplification: When selecting a customer (e.g., during Payment entry), the system will use the internal ID but **only display the Customer Name** to the user.
+
+DATABASE TABLE (No Structural Changes):
+- tbl_customers
+  * id (PK)
+  * name
+  * customer_type (ENUM: Private, Business, Government)
+  * ...
+
+---
+
+3. DELIVERY MANAGEMENT (Now a Key Sales Document for Private)
+=============================================================
+MODULE PATH: /deliveries/
+FUNCTION:
+- Track all product/service deliveries.
+- **DR V** (Delivery Receipt - Vendor): Serves as the **primary sales document** for **Private/Business** customers.
+- **DR Government**: Serves as the supporting document for **Government** Charge Invoices.
+
+KEY OPERATION REVISION:
+- **ACTION:** Add `payment_status` to track private sales payment state.
+
+DATABASE TABLE REVISION:
+- tbl_deliveries
+  * id (PK)
+  * delivery_no
+  * customer_id (FK → tbl_customers)
+  * delivery_type
+  * total_amount
+  * **payment_status (ENUM: Unpaid, Partially Paid, Paid)** <- NEW FIELD
+  * ...
+
+---
+
+4. CHARGE INVOICES (Government Exclusive - Items Removed)
+=========================================================
+MODULE PATH: /charge_invoices/
+FUNCTION:
+- **Exclusively** create invoices for services rendered to **Government** customers.
+- Calculate withholding tax (5% and 1%).
+- Track invoice payment status.
+
+BUSINESS RULE REVISION:
+- Charge Invoices MUST link to **DR Government** deliveries **only**.
+- **The invoice will no longer have line items.**
+
+DATA FLOW REVISION:
+- The **Total Amount** for the Invoice is now derived directly from the **Total Amount** of the linked **DR Government** delivery record(s).
+
+DATABASE TABLES REVISIONS:
+- **tbl_charge_invoices** (Structural Change): The `total_amount` is now derived from linked `tbl_deliveries`.
+  * ... (No change to columns)
+- **tbl_charge_invoice_items** (ELIMINATED):
+  * **ACTION:** This table is **REMOVED** from the system blueprint.
+
+- **tbl_invoice_deliveries** (Junction table - No change):
+  * Links `charge_invoice_id` to `delivery_id` (DR Government only).
+
+---
+
+5. PAYMENTS & OFFICIAL RECEIPTS (Dual Linkage to Delivery OR Invoice)
+=====================================================================
+MODULE PATH: /payments/
+FUNCTION:
+- Process customer payments.
+- Generate Official Receipts (OR).
+- Allocate payments to either a **Delivery** (Private) or an **Invoice** (Government).
+
+PAYMENT WORKFLOW REVISIONS:
+
+A. PRIVATE/BUSINESS PAYMENTS:
+  * **Linkage:** Payment must link to the **DR V** (Delivery record).
+  * **Lookup:** System searches by Customer Name, then lists their unpaid **DR V** records for payment application.
+
+B. GOVERNMENT PAYMENTS:
+  * **Linkage:** Payment must link to the **Charge Sales Invoice**.
+  * **Lookup:** System searches by Customer Name, then lists their unpaid **Charge Invoices** for payment application.
+
+DATABASE TABLES REVISION (New Junction Table for Private Sales):
+- **tbl_official_receipts** (No change to columns)
+- **tbl_or_invoice** (Retained for Government Linkage):
+  * Links `or_id` to `charge_invoice_id` (Government only).
+
+- **tbl_or_delivery** (NEW Junction Table for Private Linkage) <- NEW TABLE
+  * id (PK)
+  * **or_id (FK → tbl_official_receipts)**
+  * **delivery_id (FK → tbl_deliveries)** <- Links OR to the DR V
+  * applied_amount (DECIMAL 15,2) - Amount allocated to this DR V
+
+- tbl_payment_history (No change to columns)
+- tbl_banks (No change to columns)
+
+---
+
+6. REPORTS & STATEMENT OF ACCOUNTS (Automated Status)
+======================================================
+MODULE PATH: /reports/
+FUNCTION:
+- Generate Statement of Accounts (SOA).
+
+KEY OPERATION REVISIONS:
+- **Report Generation Fix:** The report query must be fixed to correctly retrieve and display **all** paid and unpaid records (Invoices and Deliveries) based on filter criteria.
+- **Automated Status:** The SOA report must **automatically display** the status (Paid, Partially Paid, Unpaid) for each transaction item.
+  * **Status Source:**
+    * For **Government** transactions: Check `payment_status` in **tbl_charge_invoices**.
+    * For **Private** transactions: Check **NEW `payment_status`** in **tbl_deliveries**.
+
+REPORT INCLUDES (No Change):
+- Customer Information, Transaction Details, Financial Summary.
+
+---
+
+7. BANK MANAGEMENT (No Changes)
+8. APPLICATION SETTINGS (No Changes)
+9. ACTIVITY LOGS (No Changes)
+10. DASHBOARD (No Changes)
+
+---
+
+
+================================================================================
+COMPLETE DATABASE SCHEMA - REVISED
+================================================================================
+
+... (Tables 1, 2, 4, 6, 7, 8, 9, 10, 11, 12, 13 are largely unchanged or noted below)
+
+TABLE 3: tbl_deliveries (Revised: Added Payment Status for Private Sales)
+────────────────────────
+Columns:
+- id (INT, PK, AUTO_INCREMENT)
+- delivery_no (VARCHAR 50, UNIQUE)
+- ...
+- total_amount (DECIMAL 15,2)
+- created_by (INT, FK)
+- created_at (DATETIME)
+- **payment_status (ENUM: Unpaid, Partially Paid, Paid)** <- NEW FIELD
+
+---
+
+TABLE 5: tbl_charge_invoice_items
+──────────────────────────────────
+**ACTION: This table is ELIMINATED.**
+
+---
+
+TABLE 7: tbl_or_invoice
+────────────────────────
+Columns:
+- id (INT, PK, AUTO_INCREMENT)
+- or_id (INT, FK)
+- charge_invoice_id (INT, FK) <- Only used for Government Invoices
+- applied_amount (DECIMAL 15,2)
+
+---
+
+TABLE 14: tbl_or_delivery (NEW Table: For Private Payment Linkage)
+──────────────────────────
+Columns:
+- id (INT, PK, AUTO_INCREMENT)
+- **or_id (INT, FK)**
+- **delivery_id (INT, FK)** <- Used for Private DR V linkage
+- applied_amount (DECIMAL 15,2)
+
+================================================================================
+END OF REVISED SYSTEM BLUEPRINT
+================================================================================
